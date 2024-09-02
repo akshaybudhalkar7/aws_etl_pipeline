@@ -24,6 +24,22 @@ class DemoStack(Stack):
             )
         )
 
+        # Create an IAM Role for Glue Crawler
+        crawler_role = aws_iam.Role(self, "GlueCrawlerRole",
+                                assumed_by=aws_iam.ServicePrincipal("glue.amazonaws.com"),
+                                managed_policies=[
+                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
+                                ]
+                                )
+
+        # Attach inline policy to allow the role to access the S3 bucket
+        crawler_role.add_to_policy(
+            aws_iam.PolicyStatement(
+                actions=["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+                resources=[bucket.bucket_arn, f"{bucket.bucket_arn}/*"]
+            )
+        )
+
         # # Create a Glue Crawler
         # crawler = aws_glue.CfnCrawler(self, "MyCrawler",
         #     role="arn:aws:iam::123456789012:role/service-role/AWSGlueServiceRole",  # Replace with your IAM role ARN
