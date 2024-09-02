@@ -42,7 +42,7 @@ class DemoStack(Stack):
 
         # Create a Glue Crawler
         crawler = aws_glue.CfnCrawler(self, "MyCrawler",
-            role=crawler_role.arn,  # Replace with your IAM role ARN
+            role=crawler_role.role_arn,  # Replace with your IAM role ARN
             database_name=database.ref,
             targets=aws_glue.CfnCrawler.TargetsProperty(
                 s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
