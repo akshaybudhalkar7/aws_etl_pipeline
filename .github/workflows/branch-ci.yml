@@ -35,5 +35,5 @@ jobs:
     with:
       environment: nonprod  # Change to the appropriate environment
       region: us-east-1
-      account: snowman
+      account: aws_etl_source_data_pipeline
       account_number: 441058194263
