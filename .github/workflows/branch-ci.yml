@@ -31,7 +31,7 @@ jobs:
 
   call-deployment:
     needs: build
-    uses: ./.github/workflows/deployment-ci.yml
+    uses: ./.github/workflows/deployment-template.yml
     with:
       environment: nonprod  # Change to the appropriate environment
       region: us-east-1
