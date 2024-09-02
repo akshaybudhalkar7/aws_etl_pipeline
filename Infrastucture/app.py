@@ -6,7 +6,7 @@ app = App()
 
 DemoStack(
     app,
-    "aws-etl-source-data-pipeline",
+    "snowman",
     environment="sbx",
     env = Environment(
         account = '441058194263',
