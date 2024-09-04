@@ -138,7 +138,7 @@ class DemoStack(Stack):
                         """
                                            ),
                                            role=lambda_role,
-                                           timeout=aws_cdk.Duration.minutes(5),
+                                           timeout=Duration.minutes(5),
                                            log_retention=logs.RetentionDays.ONE_DAY
                                            )
 
