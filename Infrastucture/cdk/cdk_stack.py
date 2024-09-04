@@ -126,17 +126,8 @@ class DemoStack(Stack):
         # Lambda Function to Trigger the Crawler
         lambda_function = aws_lambda.Function(self, "TriggerGlueCrawlerLambda",
                                            runtime=aws_lambda.Runtime.PYTHON_3_11,
-                                           handler="trigger_crawler.lambda_handler",
-                                           code=aws_lambda.Code.from_inline(
-                                               f"""
-        import boto3
-
-        def lambda_handler(event, context):
-            client = boto3.client('glue')
-            response = client.start_crawler(Name='{crawler.ref}')
-            return response
-                        """
-                                           ),
+                                           handler="app.lambda_handler",
+                                           code=aws_lambda.Code.from_asset(os.path.join(os.path.dirname(__file__),'..','..', 'lambda_code')),
                                            role=lambda_role,
                                            timeout=Duration.minutes(5),
                                            log_retention=logs.RetentionDays.ONE_DAY
