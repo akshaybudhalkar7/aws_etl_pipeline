@@ -44,7 +44,7 @@ class DemoStack(Stack):
                                    command=aws_glue.CfnJob.JobCommandProperty(
                                        name="glueetl",
                                        script_location=script_location,
-                                       python_version="3.11"
+                                       python_version="3"
                                    ),
                                    default_arguments={
                                        "--job-langauge": "python",
