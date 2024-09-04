@@ -100,7 +100,7 @@ class DemoStack(Stack):
 
         for file in files:
             # Create a Glue Crawler
-            crawler = aws_glue.CfnCrawler(self, "MyCrawler",
+            crawler = aws_glue.CfnCrawler(self, f"MyCrawler-{file}",
                 role=crawler_role.role_arn,  # Replace with your IAM role ARN
                 database_name=database.ref,
                 targets=aws_glue.CfnCrawler.TargetsProperty(
