@@ -101,11 +101,11 @@ class DemoStack(Stack):
             database_name=database.ref,
             targets=aws_glue.CfnCrawler.TargetsProperty(
                 s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
-                    path=f"s3://{spotify_bucket.bucket_name}/"
+                    path=f"s3://{spotify_bucket.bucket_name}/spotify_artist_data/"
                 )]
             ),
             table_prefix="spotify_",
-            configuration="{\"Version\":1.0,\"Grouping\":{\"TableGroupingPolicy\":\"CreateTablePerFile\"}}", # Ensure one table per file
+            configuration=None,
             schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
                 update_behavior="UPDATE_IN_DATABASE",
                 delete_behavior="DEPRECATE_IN_DATABASE"
