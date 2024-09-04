@@ -111,7 +111,6 @@ class DemoStack(Stack):
                 delete_behavior="DEPRECATE_IN_DATABASE"
             ),
             crawler_security_configuration=None,
-            configuration=None,
             description="Spotify Crawler"
         )
 
