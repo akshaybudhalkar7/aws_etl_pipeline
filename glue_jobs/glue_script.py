@@ -14,6 +14,6 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-# Your Glue job logic here
+print("Successful")
 
 job.commit()
