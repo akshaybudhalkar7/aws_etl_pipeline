@@ -1,7 +1,10 @@
 from os import path
 from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue,
                      aws_s3_deployment as s3_deployment,
-                     CfnOutput)
+                     CfnOutput,
+                     aws_logs as logs,
+                    CustomResource
+                     )
 from constructs import Construct
 import os
 from os import path
@@ -65,48 +68,83 @@ class DemoStack(Stack):
             description="The name of the created Glue job"
         )
 
-        # # Create a Glue Database
-        # database = aws_glue.CfnDatabase(self, "MyDatabase",
-        #     catalog_id=self.account,
-        #     database_input=aws_glue.CfnDatabase.DatabaseInputProperty(
-        #         name="etl_pipline"
-        #     )
-        # )
-        #
-        # # Create an IAM Role for Glue Crawler
-        # crawler_role = aws_iam.Role(self, "GlueCrawlerRole",
-        #                         assumed_by=aws_iam.ServicePrincipal("glue.amazonaws.com"),
-        #                         managed_policies=[
-        #                             aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
-        #                         ]
-        #                         )
-        #
-        # # Attach inline policy to allow the role to access the S3 bucket
-        # crawler_role.add_to_policy(
-        #     aws_iam.PolicyStatement(
-        #         actions=["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
-        #         resources=[bucket.bucket_arn, f"{bucket.bucket_arn}/*"]
-        #     )
-        # )
+        # Create an S3 bucket for the Spotify files
+        spotify_bucket = aws_s3.Bucket(self, "SpotifyDataBucket")
 
-        # # Create a Glue Crawler
-        # crawler = aws_glue.CfnCrawler(self, "MyCrawler",
-        #     role=crawler_role.role_arn,  # Replace with your IAM role ARN
-        #     database_name=database.ref,
-        #     targets=aws_glue.CfnCrawler.TargetsProperty(
-        #         s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
-        #             path=f"s3://{bucket.bucket_name}/"
-        #         )]
-        #     ),
-        #     table_prefix="my_",
-        #     schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
-        #         update_behavior="UPDATE_IN_DATABASE",
-        #         delete_behavior="DEPRECATE_IN_DATABASE"
-        #     ),
-        #     crawler_security_configuration=None,
-        #     configuration=None,
-        #     description="My Glue Crawler"
-        # )
+        # Create a Glue Database
+        database = aws_glue.CfnDatabase(self, "MyDatabase",
+            catalog_id=self.account,
+            database_input=aws_glue.CfnDatabase.DatabaseInputProperty(
+                name="etl_pipline"
+            )
+        )
 
+        # Create an IAM Role for Glue Crawler
+        crawler_role = aws_iam.Role(self, "GlueCrawlerRole",
+                                assumed_by=aws_iam.ServicePrincipal("glue.amazonaws.com"),
+                                managed_policies=[
+                                    aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
+                                ]
+                                )
+
+        # Attach inline policy to allow the role to access the S3 bucket
+        crawler_role.add_to_policy(
+            aws_iam.PolicyStatement(
+                actions=["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+                resources=[spotify_bucket.bucket_arn, f"{spotify_bucket.bucket_arn}/*"]
+            )
+        )
+
+        # Create a Glue Crawler
+        crawler = aws_glue.CfnCrawler(self, "MyCrawler",
+            role=crawler_role.role_arn,  # Replace with your IAM role ARN
+            database_name=database.ref,
+            targets=aws_glue.CfnCrawler.TargetsProperty(
+                s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
+                    path=f"s3://{spotify_bucket.bucket_name}/"
+                )]
+            ),
+            table_prefix="spotify_",
+            schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
+                update_behavior="UPDATE_IN_DATABASE",
+                delete_behavior="DEPRECATE_IN_DATABASE"
+            ),
+            crawler_security_configuration=None,
+            configuration=None,
+            description="Spotify Crawler"
+        )
+
+        # Create an IAM Role for the Lambda Function
+        lambda_role = aws_iam.Role(self, "LambdaRole",
+            assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
+            managed_policies=[
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
+            ]
+        )
+
+        # Lambda Function to Trigger the Crawler
+        lambda_function = aws_lambda.Function(self, "TriggerGlueCrawlerLambda",
+                                           runtime=aws_lambda.Runtime.PYTHON_3_11,
+                                           handler="trigger_crawler.lambda_handler",
+                                           code=aws_lambda.Code.from_inline(
+                                               f"""
+        import boto3
+
+        def lambda_handler(event, context):
+            client = boto3.client('glue')
+            response = client.start_crawler(Name='{crawler.ref}')
+            return response
+                        """
+                                           ),
+                                           role=lambda_role,
+                                           timeout=aws_cdk.Duration.minutes(5),
+                                           log_retention=logs.RetentionDays.ONE_DAY
+                                           )
+
+        # Automatically invoke the Lambda function after deployment
+        CustomResource(self, "TriggerCrawlerCustomResource",
+                       service_token=lambda_function.function_arn
+                       )
 
 
