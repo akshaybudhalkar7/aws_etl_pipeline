@@ -105,6 +105,7 @@ class DemoStack(Stack):
                 )]
             ),
             table_prefix="spotify_",
+            configuration="{\"Version\":1.0,\"Grouping\":{\"TableGroupingPolicy\":\"CreateTablePerFile\"}}", # Ensure one table per file
             schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
                 update_behavior="UPDATE_IN_DATABASE",
                 delete_behavior="DEPRECATE_IN_DATABASE"
