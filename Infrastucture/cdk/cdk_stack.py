@@ -25,7 +25,7 @@ class DemoStack(Stack):
         # Upload the Glue job script to S3
         deployment = s3_deployment.BucketDeployment(self, "DeployGlueJobScript",
             destination_bucket=bucket,
-            sources=[s3_deployment.Source.asset("glue_jobs/glue_script.py")],  # Path to the local script directory
+            sources=[s3_deployment.Source.asset("glue_jobs")],  # Path to the local script directory
         )
 
         #
