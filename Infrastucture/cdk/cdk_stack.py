@@ -141,24 +141,24 @@ class DemoStack(Stack):
             )
         )
 
-        # # Lambda Function to Trigger the Crawler
-        # lambda_function = aws_lambda.Function(self, "TriggerGlueCrawlerLambda",
-        #                                    runtime=aws_lambda.Runtime.PYTHON_3_11,
-        #                                    handler="app.lambda_handler",
-        #                                    code=aws_lambda.Code.from_asset(os.path.join(os.path.dirname(__file__),'..','..', 'lambda_code')),
-        #                                    role=lambda_role,
-        #                                    timeout=Duration.minutes(5),
-        #                                    log_retention=logs.RetentionDays.ONE_DAY
-        #                                    )
-        #
-        # # Grant the Lambda function permissions to access the S3 bucket
-        # spotify_bucket.grant_read(lambda_function)
-        #
-        # # Create an S3 event notification to trigger the Lambda function
-        # spotify_bucket.add_event_notification(
-        #     aws_s3.EventType.OBJECT_CREATED,
-        #     s3_notifications.LambdaDestination(lambda_function)
-        # )
+        # Lambda Function to Trigger the Crawler
+        lambda_function = aws_lambda.Function(self, "TriggerGlueCrawlerLambda",
+                                           runtime=aws_lambda.Runtime.PYTHON_3_11,
+                                           handler="app.handler",
+                                           code=aws_lambda.Code.from_asset(os.path.join(os.path.dirname(__file__),'..','..', 'lambda_code')),
+                                           role=lambda_role,
+                                           timeout=Duration.minutes(5),
+                                           log_retention=logs.RetentionDays.ONE_DAY
+                                           )
+
+        # Grant the Lambda function permissions to access the S3 bucket
+        spotify_bucket.grant_read(lambda_function)
+
+        # Create an S3 event notification to trigger the Lambda function
+        spotify_bucket.add_event_notification(
+            aws_s3.EventType.OBJECT_CREATED,
+            s3_notifications.LambdaDestination(lambda_function)
+        )
 
 
 
