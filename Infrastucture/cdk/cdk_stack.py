@@ -38,7 +38,8 @@ class DemoStack(Stack):
         # Grant the role access to the script in S3
         glue_bucket.grant_read(glue_role)
 
-        glue_job = aws_glue.CfnJob(name="my_glue_job",
+        glue_job = aws_glue.CfnJob(self, "MyGlueJob",
+                                   name="my_glue_job",
                                    role=glue_role.role_arn,
                                    command=aws_glue.CfnJob.JobCommandProperty(
                                        name="glueetl",
