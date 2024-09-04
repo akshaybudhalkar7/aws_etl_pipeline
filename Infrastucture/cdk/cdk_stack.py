@@ -1,6 +1,7 @@
 from os import path
-from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue, aws_s3_assets as s3_assets,
-                     aws_s3_deployment as s3_deployment)
+from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue,
+                     aws_s3_deployment as s3_deployment,
+                     CfnOutput)
 from constructs import Construct
 import os
 from os import path
@@ -11,24 +12,58 @@ class DemoStack(Stack):
     def __init__(self, scope: Construct, id:str, environment:None, **kwargs) -> None:
         super().__init__(scope,id,**kwargs)
 
-        bucket = aws_s3.Bucket(
+        glue_bucket = aws_s3.Bucket(
             self,
             "%s-s3" % id,
             bucket_name="%s-s3" % id,
         )
 
         # Upload the Glue job script to S3
-        script_asset = s3_assets.Asset(self, "GlueJobScript",
-                                       path="glue_jobs/glue_script.py"
-                                       )
-
-        # Upload the Glue job script to S3
         deployment = s3_deployment.BucketDeployment(self, "DeployGlueJobScript",
-            destination_bucket=bucket,
+                                                    destination_bucket=glue_bucket,
             sources=[s3_deployment.Source.asset("glue_jobs")],  # Path to the local script directory
         )
 
-        #
+        # The location of the Glue script in S3
+        script_location = f"s3://{glue_bucket.bucket_name}/glue_script.py"
+
+        # Glue Job IAM Role
+        glue_role = aws_iam.Role(self, "GlueJobRole",
+            assumed_by=aws_iam.ServicePrincipal("glue.amazonaws.com"),
+            managed_policies=[
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
+            ]
+        )
+
+        # Grant the role access to the script in S3
+        glue_bucket.grant_read(glue_role)
+
+        glue_job = aws_glue.CfnJob(name="my_glue_job",
+                                   role=glue_role.role_arn,
+                                   command=aws_glue.CfnJob.JobCommandProperty(
+                                       name="glueetl",
+                                       script_location=script_location,
+                                       python_version="3.11"
+                                   ),
+                                   default_arguments={
+                                       "--job-langauge": "python",
+                                       "--enable-metric":"true"
+                                   },
+                                   max_retries=2,
+                                   max_capacity=2.0,
+                                   description="ETL job",
+                                   execution_property=aws_glue.CfnJob.ExecutionPropertyProperty(
+                                       max_concurrent_runs=1
+                                   ),
+                                   glue_version="3.0"  # Specify Glue version
+                                   )
+
+        # Output the name of the Glue job
+        CfnOutput(self, "GlueJobName",
+            value=glue_job.ref,
+            description="The name of the created Glue job"
+        )
+
         # # Create a Glue Database
         # database = aws_glue.CfnDatabase(self, "MyDatabase",
         #     catalog_id=self.account,
@@ -71,4 +106,6 @@ class DemoStack(Stack):
         #     configuration=None,
         #     description="My Glue Crawler"
         # )
+
+
 
