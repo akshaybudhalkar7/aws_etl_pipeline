@@ -8,7 +8,7 @@ aws_s3_notifications as s3_notifications
 from constructs import Construct
 import os
 from os import path
-
+import json
 
 
 class DemoStack(Stack):
@@ -97,7 +97,7 @@ class DemoStack(Stack):
 
         # List of files to create crawlers for
         files = ["features_data/spotify_features_data_2023.csv", "tracks_data/spotify_tracks_data_2023.csv", "data_12_20/spotify_data_12_20_2023.csv", "artist_data/spotify_artist_data_2023.csv", "albums_data/spotify-albums_data_2023.csv"]
-
+        crawler_name_list = []
         for file in files:
             # Create a Glue Crawler
             crawler = aws_glue.CfnCrawler(self, f"MyCrawler-{file}",
@@ -117,6 +117,9 @@ class DemoStack(Stack):
                 crawler_security_configuration=None,
                 description="Spotify Crawler"
             )
+            crawler_name_list.append(crawler.ref)
+
+        crawler_name_json = json.dumps(crawler_name_list)
 
         # Create an IAM Role for the Lambda Function
         lambda_role = aws_iam.Role(self, "LambdaRole",
@@ -136,7 +139,7 @@ class DemoStack(Stack):
                                               timeout=Duration.minutes(5),
                                               log_retention=logs.RetentionDays.ONE_DAY,
                                               environment={
-                                                  "GLUE_CRAWLER_NAME": crawler.ref
+                                                  "GLUE_CRAWLER_NAME": crawler_name_json
                                                   # Pass the crawler name as an environment variable
                                               }
                                            )
