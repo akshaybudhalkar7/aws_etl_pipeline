@@ -3,7 +3,7 @@ from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue,
                      aws_s3_deployment as s3_deployment,
                      CfnOutput,
                      aws_logs as logs,
-                    CustomResource
+aws_s3_notifications as s3_notifications
                      )
 from constructs import Construct
 import os
@@ -142,9 +142,12 @@ class DemoStack(Stack):
                                            log_retention=logs.RetentionDays.ONE_DAY
                                            )
 
-        # Automatically invoke the Lambda function after deployment
-        CustomResource(self, "TriggerCrawlerCustomResource",
-                       service_token=lambda_function.function_arn
-                       )
+        # Grant the Lambda function permissions to access the S3 bucket
+        spotify_bucket.grant_read(lambda_function)
 
+        # Create an S3 event notification to trigger the Lambda function
+        spotify_bucket.add_event_notification(
+            aws_s3.EventType.OBJECT_CREATED,
+            s3_notifications.LambdaDestination(lambda_function)
+        )
 
