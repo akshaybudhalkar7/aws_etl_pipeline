@@ -32,8 +32,8 @@ jobs:
           role-session-name: GitHubActions
           aws-region: ${{ inputs.region }}
 
-      - name: Upload Glue job script to S3
-        run: aws s3 cp glue_jobs/glue_script.py s3://snowman-s3/glue_jobs/glue_script.py
+#      - name: Upload Glue job script to S3
+#        run: aws s3 cp glue_jobs/glue_script.py s3://snowman-s3/glue_jobs/glue_script.py
 
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
