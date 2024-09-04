@@ -123,6 +123,24 @@ class DemoStack(Stack):
             ]
         )
 
+        lambda_role.add_to_policy(
+            aws_iam.PolicyStatement(
+                actions=[
+                    "glue:CreateCrawler",
+                    "glue:UpdateCrawler",
+                    "glue:DeleteCrawler",
+                    "glue:GetCrawler",
+                    "glue:GetCrawlers",
+                    "glue:StartCrawler",
+                    "glue:StopCrawler",
+                    "glue:TagResource",
+                    "glue:UntagResource",
+                    "glue:ListTags"
+                ],
+                resources=["*"]
+            )
+        )
+
         # Lambda Function to Trigger the Crawler
         lambda_function = aws_lambda.Function(self, "TriggerGlueCrawlerLambda",
                                            runtime=aws_lambda.Runtime.PYTHON_3_11,
