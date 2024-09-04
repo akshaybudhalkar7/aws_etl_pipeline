@@ -95,24 +95,28 @@ class DemoStack(Stack):
             )
         )
 
-        # Create a Glue Crawler
-        crawler = aws_glue.CfnCrawler(self, "MyCrawler",
-            role=crawler_role.role_arn,  # Replace with your IAM role ARN
-            database_name=database.ref,
-            targets=aws_glue.CfnCrawler.TargetsProperty(
-                s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
-                    path=f"s3://{spotify_bucket.bucket_name}/spotify_artist_data/"
-                )]
-            ),
-            table_prefix="spotify_",
-            configuration=None,
-            schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
-                update_behavior="UPDATE_IN_DATABASE",
-                delete_behavior="DEPRECATE_IN_DATABASE"
-            ),
-            crawler_security_configuration=None,
-            description="Spotify Crawler"
-        )
+        # List of files to create crawlers for
+        files = ["spotify_features_data_2023.csv", "spotify_tracks_data_2023.csv", "spotify_data_12_20_2023.csv", "spotify_artist_data_2023.csv", "spotify-albums_data_2023.csv"]
+
+        for file in files:
+            # Create a Glue Crawler
+            crawler = aws_glue.CfnCrawler(self, "MyCrawler",
+                role=crawler_role.role_arn,  # Replace with your IAM role ARN
+                database_name=database.ref,
+                targets=aws_glue.CfnCrawler.TargetsProperty(
+                    s3_targets=[aws_glue.CfnCrawler.S3TargetProperty(
+                        path= f"s3://{spotify_bucket.bucket_name}/{file}"
+                    )]
+                ),
+                # table_prefix="spotify_",
+                configuration=None,
+                schema_change_policy=aws_glue.CfnCrawler.SchemaChangePolicyProperty(
+                    update_behavior="UPDATE_IN_DATABASE",
+                    delete_behavior="DEPRECATE_IN_DATABASE"
+                ),
+                crawler_security_configuration=None,
+                description="Spotify Crawler"
+            )
 
         # Create an IAM Role for the Lambda Function
         lambda_role = aws_iam.Role(self, "LambdaRole",
