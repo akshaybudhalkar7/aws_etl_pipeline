@@ -1,5 +1,6 @@
 from os import path
-from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue, aws_s3_assets as s3_assets)
+from aws_cdk import (aws_s3, Stack, aws_lambda, aws_iam, Duration, aws_glue, aws_s3_assets as s3_assets,
+                     aws_s3_deployment as s3_deployment)
 from constructs import Construct
 import os
 from os import path
@@ -20,6 +21,12 @@ class DemoStack(Stack):
         script_asset = s3_assets.Asset(self, "GlueJobScript",
                                        path="glue_jobs/glue_script.py"
                                        )
+
+        # Upload the Glue job script to S3
+        deployment = s3_deployment.BucketDeployment(self, "DeployGlueJobScript",
+            destination_bucket=bucket,
+            sources=[s3_deployment.Source.asset("glue_jobs/glue_script.py")],  # Path to the local script directory
+        )
 
         #
         # # Create a Glue Database
