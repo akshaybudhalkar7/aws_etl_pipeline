@@ -14,6 +14,20 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-print("Successful")
+
+albums_data = GlueContext.create_dynamic_frame.from_catalog(
+    database='etl_pipline',
+    table='spotify_albums_data_2023_csv'
+)
+
+# Convert to a Spark DataFrame for transformations if needed
+albums_data_df = albums_data.toDF()
+
+print(albums_data_df.head(10))
+
+
+
+
+
 
 job.commit()
