@@ -15,7 +15,7 @@ job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
 
-albums_data = GlueContext.create_dynamic_frame.from_catalog(
+albums_data = glueContext.create_dynamic_frame.from_catalog(
     database='etl_pipline',
     table='spotify_albums_data_2023_csv'
 )
