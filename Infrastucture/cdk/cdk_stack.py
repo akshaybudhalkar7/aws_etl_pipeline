@@ -96,8 +96,8 @@ class DemoStack(Stack):
         )
 
         # List of files to create crawlers for
-        # files = ["features_data/spotify_features_data_2023.csv", "tracks_data/spotify_tracks_data_2023.csv", "data_12_20/spotify_data_12_20_2023.csv", "artist_data/spotify_artist_data_2023.csv", "albums_data/spotify-albums_data_2023.csv"]
-        files = ["spotify_features_data_2023.csv", "spotify_tracks_data_2023.csv", "spotify_data_12_20_2023.csv", "spotify_artist_data_2023.csv", "spotify-albums_data_2023.csv"]
+        files = ["features_data/spotify_features_data_2023.csv", "tracks_data/spotify_tracks_data_2023.csv", "data_12_20/spotify_data_12_20_2023.csv", "artist_data/spotify_artist_data_2023.csv", "albums_data/spotify-albums_data_2023.csv"]
+        #files = ["spotify_features_data_2023.csv", "spotify_tracks_data_2023.csv", "spotify_data_12_20_2023.csv", "spotify_artist_data_2023.csv", "spotify-albums_data_2023.csv"]
         crawler_name_list = []
         for file in files:
             # Create a Glue Crawler
