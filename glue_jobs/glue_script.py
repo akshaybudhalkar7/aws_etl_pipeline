@@ -17,7 +17,7 @@ job.init(args['JOB_NAME'], args)
 
 albums_data = glueContext.create_dynamic_frame.from_catalog(
     database ='etl_pipline',
-    table_name ='spotify_albums_data_2023_csv'
+    table_name ='albums_data'
 )
 
 # Convert to a Spark DataFrame for transformations if needed
