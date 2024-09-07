@@ -26,5 +26,5 @@ artists_data = glueContext.create_dynamic_frame.from_catalog(
 )
 
 joinalbumartist=Join.apply(frame1=albums_data,frame2=artists_data,keys1=['artist_id'],keys2=['id'],transformation_ctx="joinalbumartist")
-f
+
 job.commit()
