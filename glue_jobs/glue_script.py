@@ -28,8 +28,7 @@ tracks_data = glueContext.create_dynamic_frame.from_catalog(database="etl_piplin
 
 joinwithtracks = Join.apply(frame1=album_artist_join, frame2=tracks_data,keys1=['track_id'],keys2=['track_id'],transformation_ctx="joinwithtracks")
 
-dropfields = dropfields.apply(frame=joinwithtracks,paths=["`.track_id`","id"],transformation_ctx="dropfields")
-
+dropfields = Dropfields.apply(frame=joinwithtracks,paths=["`.track_id`","id"],transformation_ctx="dropfields")
 
 path = f's3://{target_bucket}/datawarehouse/'
 

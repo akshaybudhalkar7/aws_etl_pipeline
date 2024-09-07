@@ -57,7 +57,7 @@ class DemoStack(Stack):
                                    default_arguments={
                                        "--job-langauge": "python",
                                        "--enable-metric":"true",
-                                       "--target-bucket":spotify_bucket.bucket_name
+                                       "--target_bucket":spotify_bucket.bucket_name
                                    },
                                    max_retries=2,
                                    max_capacity=2.0,
