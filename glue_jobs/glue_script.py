@@ -1,4 +1,3 @@
-# glue_jobs/my_glue_job.py
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -7,24 +6,24 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 
 args = getResolvedOptions(sys.argv, ['JOB_NAME'])
-
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
+# Script generated for node AWS Glue Data Catalog
+AWSGlueDataCatalog_album = glueContext.create_dynamic_frame.from_catalog(database="etl_pipline", table_name="albums_data", transformation_ctx="AWSGlueDataCatalog_album")
 
-albums_data = glueContext.create_dynamic_frame.from_catalog(
-    database ='etl_pipline',
-    table_name ='albums_data'
-)
+AWSGlueDataCatalog_artist = glueContext.create_dynamic_frame.from_catalog(database="etl_pipline", table_name="artist_data", transformation_ctx="AWSGlueDataCatalog_artist")
 
-artists_data = glueContext.create_dynamic_frame.from_catalog(
-    database= 'etl_pipeline',
-    table_name = 'artist_data'
-)
+album_artist_join = Join.apply(frame1=AWSGlueDataCatalog_album, frame2=AWSGlueDataCatalog_artist, keys1=["id"], keys2=["artist_id"], transformation_ctx="album_artist_join")
 
-joinalbumartist=Join.apply(frame1=albums_data,frame2=artists_data,keys1=['artist_id'],keys2=['id'],transformation_ctx="joinalbumartist")
+tracks_data = glueContext.create_dynamic_frame.from_catalog(database="etl_pipline", table_name="tracks_data", transformation_ctx="tracks_data")
+
+joinwithtracks = Join.apply(frame1=album_artist_join, frame2=tracks_data,keys1=['track_id'],keys2=['track_id'],transformation_ctx="joinwithtracks")
+
+dropfields = dropfields.apply(frame=joinwithtracks,paths=["`.track_id`","id"])
 
 job.commit()
+
