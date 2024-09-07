@@ -97,7 +97,7 @@ class DemoStack(Stack):
         )
 
         # List of files to create crawlers for
-        files = ["features_data/", "tracks_data/", "data_12_20/", "artist_data/", "albums_data/g"]
+        files = ["features_data/", "tracks_data/", "data_12_20/", "artist_data/", "albums_data/"]
         #files = ["spotify_features_data_2023.csv", "spotify_tracks_data_2023.csv", "spotify_data_12_20_2023.csv", "spotify_artist_data_2023.csv", "spotify-albums_data_2023.csv"]
         crawler_name_list = []
         for file in files:
