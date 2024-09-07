@@ -20,14 +20,11 @@ albums_data = glueContext.create_dynamic_frame.from_catalog(
     table_name ='albums_data'
 )
 
-# Convert to a Spark DataFrame for transformations if needed
-albums_data_df = albums_data.toDF()
+artists_data = glueContext.create_dynamic_frame.from_catalog(
+    database= 'etl_pipeline',
+    table_name = 'artist_data'
+)
 
-print(albums_data_df.head(10))
-
-
-
-
-
-
+joinalbumartist=Join.apply(frame1=albums_data,frame2=artists_data,keys1=['artist_id'],keys2=['id'],transformation_ctx="joinalbumartist")
+f
 job.commit()
