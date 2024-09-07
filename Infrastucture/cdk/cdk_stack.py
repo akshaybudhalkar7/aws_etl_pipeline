@@ -15,6 +15,10 @@ class DemoStack(Stack):
     def __init__(self, scope: Construct, id:str, environment:None, **kwargs) -> None:
         super().__init__(scope,id,**kwargs)
 
+        # Create an S3 bucket for the Spotify files
+        spotify_bucket = aws_s3.Bucket(self, "SpotifyDataBucket")
+
+
         glue_bucket = aws_s3.Bucket(
             self,
             "%s-s3" % id,
@@ -52,7 +56,8 @@ class DemoStack(Stack):
                                    ),
                                    default_arguments={
                                        "--job-langauge": "python",
-                                       "--enable-metric":"true"
+                                       "--enable-metric":"true",
+                                       "--target-bucket":spotify_bucket.bucket_name
                                    },
                                    max_retries=2,
                                    max_capacity=2.0,
@@ -60,7 +65,8 @@ class DemoStack(Stack):
                                    execution_property=aws_glue.CfnJob.ExecutionPropertyProperty(
                                        max_concurrent_runs=1
                                    ),
-                                   glue_version="3.0"  # Specify Glue version
+                                   glue_version="3.0",  # Specify Glue version
+
                                    )
 
         # Output the name of the Glue job
@@ -68,9 +74,6 @@ class DemoStack(Stack):
             value=glue_job.ref,
             description="The name of the created Glue job"
         )
-
-        # Create an S3 bucket for the Spotify files
-        spotify_bucket = aws_s3.Bucket(self, "SpotifyDataBucket")
 
         # Create a Glue Database
         database = aws_glue.CfnDatabase(self, "MyDatabase",
